@@ -1,0 +1,54 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using SFML.Graphics;
+
+namespace CosmicDefenders.Entities.Enemies;
+
+internal class EnemyWaveManager
+{
+    public List<List<IEnemy>> Enemies { get; private set; }
+    public void CreateEnemies(float windowHeigh, float windowWidth)
+    {
+        Enemies = new List<List<IEnemy>>();
+
+        // 5 rows, 11 columns
+
+        AddEnemyRow<EnemyYellow>(Enemies, 11, (int)windowWidth, y: 100);
+        AddEnemyRow<EnemyRed>(Enemies, 11, (int)windowWidth, y: 150);
+        AddEnemyRow<EnemyGreen>(Enemies, 11, (int)windowWidth, y: 200);
+    }
+
+    internal void Draw(RenderWindow window)
+    {
+        foreach (var enemyRow in Enemies)
+        {
+            foreach (var enemy in enemyRow)
+            {
+                enemy.Draw(window);
+            }
+        }
+    }
+
+    private void AddEnemyRow<T>(List<List<IEnemy>> enemies, int columns, int totalWidth, int y) where T : IEnemy, new()
+    {
+        List<IEnemy> enemyRow = new List<IEnemy>();
+
+        IEnemy enemyInstance = new T();
+        int enemyWidth = enemyInstance.Width;
+        int total = columns * enemyWidth + (columns - 1) * 10;
+        int startX = (totalWidth - total) / 2;
+        enemyInstance.PositionEnemy(startX, y);
+
+        for (int col = 1; col < columns; col++)
+        {
+            enemyInstance = new T();
+            startX += enemyWidth + 10;
+            enemyInstance.PositionEnemy(startX, y);
+            enemyRow.Add(enemyInstance);
+        }
+        enemies.Add(enemyRow);
+    }
+}
