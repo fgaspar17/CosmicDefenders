@@ -15,6 +15,8 @@ internal class GameState
 {
     RenderWindow _window;
     SpaceShip _spaceShip;
+    List<Bullet> _bullets;
+
     public GameState()
     {
         _window = new RenderWindow(new VideoMode(800, 600), "Cosmic Defenders");
@@ -23,6 +25,7 @@ internal class GameState
         _window.SetVerticalSyncEnabled(true);
 
         _spaceShip = new SpaceShip();
+        _bullets = new List<Bullet>();
 
         // Subscription to keyboard events
         _window.KeyPressed += (sender, e) =>
@@ -39,6 +42,10 @@ internal class GameState
             {
                 _spaceShip.PositionX = _spaceShip.PositionX + 10;
             }
+            else if (e.Code == Keyboard.Key.Space)
+            {
+                _bullets.Add(_spaceShip.Shoot());
+            }
         };
     }
 
@@ -51,9 +58,13 @@ internal class GameState
             _window.DispatchEvents();
             _window.Clear(Color.Black);
 
-            _window.Draw(_spaceShip.Sprite);
-            var debugRect = GetDebugRectangle(_spaceShip.Sprite);
-            _window.Draw(debugRect);
+            _spaceShip.Draw(_window);
+            _spaceShip.DrawDebug(_window);
+
+            foreach (var bullet in _bullets)
+            {
+                bullet.Draw(_window);
+            }
 
             EnemyWaveManager waveManager = new EnemyWaveManager();
             waveManager.CreateEnemies(_window.Size.Y, _window.Size.X);
