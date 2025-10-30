@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace CosmicDefenders.Entities.Player;
 
-internal class Bullet
+internal class SpaceShipBullet
 {
     private Sprite Sprite { get; set; }
     public float PositionX
@@ -18,12 +18,17 @@ internal class Bullet
         set => Sprite.Position = new Vector2f(Sprite.Position.X, value);
     }
 
-    public Bullet(float positionX, float positionY)
+    public SpaceShipBullet(float positionX, float positionY)
     {
         // Painting the Spacecraft
         Texture texture = new(Path.Combine("Assets", "bullet.png"));
         Sprite = new(texture);
         Sprite.Position = new Vector2f(positionX, positionY);
+    }
+
+    public void Update()
+    {
+        Sprite.Position = new Vector2f(Sprite.Position.X, Sprite.Position.Y - 10);
     }
 
     public void Draw(RenderWindow window)

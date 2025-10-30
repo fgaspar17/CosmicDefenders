@@ -15,7 +15,7 @@ internal class GameState
 {
     RenderWindow _window;
     SpaceShip _spaceShip;
-    List<Bullet> _bullets;
+    List<SpaceShipBullet> _bullets;
 
     public GameState()
     {
@@ -25,11 +25,13 @@ internal class GameState
         _window.SetVerticalSyncEnabled(true);
 
         _spaceShip = new SpaceShip();
-        _bullets = new List<Bullet>();
+        _bullets = new List<SpaceShipBullet>();
 
         // Subscription to keyboard events
         _window.KeyPressed += (sender, e) =>
         {
+            // TODO: Shooting and moving at the same time
+            // TODO: Cooldowns for shooting
             if (e.Code == Keyboard.Key.Escape)
             {
                 _window.Close();
@@ -52,6 +54,8 @@ internal class GameState
     public void Run()
     {
         bool right = true;
+        EnemyWaveManager waveManager = new EnemyWaveManager();
+        waveManager.CreateEnemies(_window.Size.Y, _window.Size.X);
 
         while (_window.IsOpen)
         {
@@ -61,13 +65,22 @@ internal class GameState
             _spaceShip.Draw(_window);
             _spaceShip.DrawDebug(_window);
 
-            foreach (var bullet in _bullets)
+
+
+            for (int i = 0; i < _bullets.Count; i++)
             {
+                SpaceShipBullet? bullet = _bullets[i];
+                if (bullet.PositionY < 0 || waveManager.CollidesWith(bullet))
+                {
+                    _bullets.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+
+                bullet.Update();
                 bullet.Draw(_window);
             }
 
-            EnemyWaveManager waveManager = new EnemyWaveManager();
-            waveManager.CreateEnemies(_window.Size.Y, _window.Size.X);
             waveManager.Draw(_window);
 
             _window.Display();

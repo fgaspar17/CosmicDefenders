@@ -28,9 +28,9 @@ internal class SpaceShip
         Sprite.Position = new Vector2f(positionX, positionY);
     }
 
-    public Bullet Shoot()
+    public SpaceShipBullet Shoot()
     {
-        return new Bullet(PositionX, PositionY);
+        return new SpaceShipBullet(PositionX + ((float)this.Sprite.GetGlobalBounds().Width) / 2 - 10, PositionY);
     }
 
     public void Draw(RenderWindow window)

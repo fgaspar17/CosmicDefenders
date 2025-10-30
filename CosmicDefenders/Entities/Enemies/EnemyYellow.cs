@@ -5,21 +5,34 @@ namespace CosmicDefenders.Entities.Enemies;
 
 internal class EnemyYellow : IEnemy
 {
-    private Sprite Enemy { get; set; }
-    public int Width { get => Enemy.TextureRect.Width; }
+    private Sprite Sprite { get; set; }
+
+    public float PositionX
+    {
+        get => Sprite.Position.X;
+    }
+    public float PositionY
+    {
+        get => Sprite.Position.Y;
+    }
+
+    public int Width { get => Sprite.TextureRect.Width; }
+
+    public int Height { get => Sprite.TextureRect.Height; }
+
     public EnemyYellow()
     {
         Texture texture = new(Path.Combine("Assets", "yellow.png"));
-        Enemy = new(texture);
+        Sprite = new(texture);
     }
 
     public void PositionEnemy(float x, float y)
     {
-        Enemy.Position = new Vector2f(x, y);
+        Sprite.Position = new Vector2f(x, y);
     }
 
     public void Draw(RenderWindow window)
     {
-        window.Draw(Enemy);
+        window.Draw(Sprite);
     }
 }
