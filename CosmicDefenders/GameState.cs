@@ -36,18 +36,6 @@ internal class GameState
             {
                 _window.Close();
             }
-            else if (e.Code == Keyboard.Key.Left)
-            {
-                _spaceShip.PositionX = _spaceShip.PositionX - 10;
-            }
-            else if (e.Code == Keyboard.Key.Right)
-            {
-                _spaceShip.PositionX = _spaceShip.PositionX + 10;
-            }
-            else if (e.Code == Keyboard.Key.Space)
-            {
-                _bullets.Add(_spaceShip.Shoot());
-            }
         };
     }
 
@@ -59,8 +47,25 @@ internal class GameState
 
         while (_window.IsOpen)
         {
+            //_bulletCurrentCooldownTime += _window
+
             _window.DispatchEvents();
             _window.Clear(Color.Black);
+
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+            {
+                _spaceShip.PositionX = _spaceShip.PositionX - 10;
+            }
+            else if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+            {
+                _spaceShip.PositionX = _spaceShip.PositionX + 10;
+            }
+
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Space))
+            {
+                if (_spaceShip.TryShoot(out var spaceShipBullet))
+                    _bullets.Add(spaceShipBullet);
+            }
 
             _spaceShip.Draw(_window);
             _spaceShip.DrawDebug(_window);

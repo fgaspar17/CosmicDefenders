@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using System.Diagnostics;
+using SFML.Graphics;
 using SFML.System;
 
 namespace CosmicDefenders.Entities.Player;
@@ -6,6 +7,8 @@ namespace CosmicDefenders.Entities.Player;
 internal class SpaceShip
 {
     private Sprite Sprite { get; set; }
+    private Stopwatch ShotTimer { get; } = Stopwatch.StartNew();
+
     public float PositionX
     {
         get => Sprite.Position.X;
@@ -26,11 +29,21 @@ internal class SpaceShip
         Texture texture = new(Path.Combine("Assets", "DurrrSpaceShip.png"));
         Sprite = new(texture);
         Sprite.Position = new Vector2f(positionX, positionY);
+        ShotTimer.Start();
     }
 
-    public SpaceShipBullet Shoot()
+    public bool TryShoot(out SpaceShipBullet bullet)
     {
-        return new SpaceShipBullet(PositionX + ((float)this.Sprite.GetGlobalBounds().Width) / 2 - 10, PositionY);
+        bullet = null;
+
+        if (ShotTimer.ElapsedMilliseconds >= 500)
+        {
+            ShotTimer.Restart();
+            bullet = new SpaceShipBullet(PositionX + ((float)this.Sprite.GetGlobalBounds().Width) / 2 - 10, PositionY);
+            return true;
+        }
+
+        return false;
     }
 
     public void Draw(RenderWindow window)
