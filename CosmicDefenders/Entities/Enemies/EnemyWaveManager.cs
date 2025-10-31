@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CosmicDefenders.Entities.Player;
 using SFML.Graphics;
+using SFML.Window;
 
 namespace CosmicDefenders.Entities.Enemies;
 
@@ -30,6 +32,27 @@ internal class EnemyWaveManager
                 enemy.Draw(window);
             }
         }
+    }
+
+    internal bool CollidesWith(SpaceShipBullet bullet)
+    {
+        bool collisionDetected = false;
+        foreach (var enemyRow in Enemies)
+        {
+            for (int i = 0; i < enemyRow.Count; i++)
+            {
+                IEnemy? enemy = enemyRow[i];
+                if ((bullet.PositionX >= enemy.PositionX && bullet.PositionX <= enemy.PositionX + enemy.Width)
+                    && bullet.PositionY <= enemy.PositionY && bullet.PositionY >= enemy.PositionY - enemy.Height)
+                {
+                    enemyRow.RemoveAt(i);
+                    i--;
+                    collisionDetected = true;
+                }
+            }
+        }
+
+        return collisionDetected;
     }
 
     private void AddEnemyRow<T>(List<List<IEnemy>> enemies, int columns, int totalWidth, int y) where T : IEnemy, new()

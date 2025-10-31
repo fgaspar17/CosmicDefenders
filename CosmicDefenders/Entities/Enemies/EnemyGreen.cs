@@ -6,7 +6,21 @@ namespace CosmicDefenders.Entities.Enemies;
 internal class EnemyGreen : IEnemy
 {
     private Sprite Sprite { get; set; }
+
+    public float PositionX
+    {
+        get => Sprite.Position.X;
+    }
+
+    public float PositionY
+    {
+        get => Sprite.Position.Y;
+    }
+
     public int Width { get => Sprite.TextureRect.Width; }
+
+    public int Height { get => Sprite.TextureRect.Height; }
+
     public EnemyGreen()
     {
         Texture texture = new(Path.Combine("Assets", "green.png"));
