@@ -78,6 +78,7 @@ internal class EnemyWaveManager
 
     internal void Update(int maxRight)
     {
+        bool oldDirection = rightDirection;
         if (rightDirection)
         {
             foreach (var enemyRow in Enemies)
@@ -103,6 +104,17 @@ internal class EnemyWaveManager
                     {
                         rightDirection = true;
                     }
+                }
+            }
+        }
+
+        if (oldDirection != rightDirection)
+        {
+            foreach (var enemyRow in Enemies)
+            {
+                foreach (var enemy in enemyRow)
+                {
+                    enemy.PositionEnemy(enemy.PositionX, enemy.PositionY + 10);
                 }
             }
         }
