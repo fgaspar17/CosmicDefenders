@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CosmicDefenders.Entities.Enemies;
+﻿using CosmicDefenders.Entities.Enemies;
 using CosmicDefenders.Entities.Player;
 using SFML.Graphics;
 using SFML.System;
@@ -30,8 +25,6 @@ internal class GameState
         // Subscription to keyboard events
         _window.KeyPressed += (sender, e) =>
         {
-            // TODO: Shooting and moving at the same time
-            // TODO: Cooldowns for shooting
             if (e.Code == Keyboard.Key.Escape)
             {
                 _window.Close();
@@ -41,24 +34,25 @@ internal class GameState
 
     public void Run()
     {
-        bool right = true;
         EnemyWaveManager waveManager = new EnemyWaveManager();
         waveManager.CreateEnemies(_window.Size.Y, _window.Size.X);
 
         while (_window.IsOpen)
         {
-            //_bulletCurrentCooldownTime += _window
-
             _window.DispatchEvents();
             _window.Clear(Color.Black);
 
             if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
             {
-                _spaceShip.PositionX = _spaceShip.PositionX - 10;
+                float newPositionX = _spaceShip.PositionX - 10;
+                if (newPositionX > 0)
+                    _spaceShip.PositionX = newPositionX;
             }
             else if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
             {
-                _spaceShip.PositionX = _spaceShip.PositionX + 10;
+                float newPositionX = _spaceShip.PositionX + 10;
+                if (newPositionX < _window.Size.X - _spaceShip.Width)
+                    _spaceShip.PositionX = newPositionX;
             }
 
             if (Keyboard.IsKeyPressed(Keyboard.Key.Space))
@@ -86,6 +80,7 @@ internal class GameState
                 bullet.Draw(_window);
             }
 
+            waveManager.Update((int)_window.Size.X);
             waveManager.Draw(_window);
 
             _window.Display();

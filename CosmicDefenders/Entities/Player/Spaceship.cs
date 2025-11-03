@@ -21,6 +21,8 @@ internal class SpaceShip
         set => Sprite.Position = new Vector2f(Sprite.Position.X, value);
     }
 
+    public float Width { get => Sprite.GetGlobalBounds().Width; }
+
     public SpaceShip() : this(360, 500) { }
 
     public SpaceShip(int positionX, int positionY)
