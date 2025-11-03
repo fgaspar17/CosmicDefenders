@@ -12,6 +12,7 @@ namespace CosmicDefenders.Entities.Enemies;
 internal class EnemyWaveManager
 {
     public List<List<IEnemy>> Enemies { get; private set; }
+    private bool rightDirection = true;
     public void CreateEnemies(float windowHeigh, float windowWidth)
     {
         Enemies = new List<List<IEnemy>>();
@@ -73,5 +74,49 @@ internal class EnemyWaveManager
             enemyRow.Add(enemyInstance);
         }
         enemies.Add(enemyRow);
+    }
+
+    internal void Update(int maxRight)
+    {
+        bool oldDirection = rightDirection;
+        if (rightDirection)
+        {
+            foreach (var enemyRow in Enemies)
+            {
+                foreach (var enemy in enemyRow)
+                {
+                    enemy.PositionEnemy(enemy.PositionX + 2, enemy.PositionY);
+                    if (enemy.PositionX + enemy.Width >= maxRight)
+                    {
+                        rightDirection = false;
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (var enemyRow in Enemies)
+            {
+                foreach (var enemy in enemyRow)
+                {
+                    enemy.PositionEnemy(enemy.PositionX - 2, enemy.PositionY);
+                    if (enemy.PositionX <= 0)
+                    {
+                        rightDirection = true;
+                    }
+                }
+            }
+        }
+
+        if (oldDirection != rightDirection)
+        {
+            foreach (var enemyRow in Enemies)
+            {
+                foreach (var enemy in enemyRow)
+                {
+                    enemy.PositionEnemy(enemy.PositionX, enemy.PositionY + 10);
+                }
+            }
+        }
     }
 }
