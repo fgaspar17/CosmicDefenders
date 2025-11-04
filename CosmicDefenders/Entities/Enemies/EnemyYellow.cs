@@ -20,6 +20,8 @@ internal class EnemyYellow : IEnemy
 
     public int Height { get => Sprite.TextureRect.Height; }
 
+    public int ScoreValue => 20;
+
     public EnemyYellow()
     {
         Texture texture = new(Path.Combine("Assets", "yellow.png"));

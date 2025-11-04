@@ -20,8 +20,8 @@ internal class EnemyWaveManager
         // 5 rows, 11 columns
 
         AddEnemyRow<EnemyYellow>(Enemies, 11, (int)windowWidth, y: 100);
-        AddEnemyRow<EnemyRed>(Enemies, 11, (int)windowWidth, y: 150);
-        AddEnemyRow<EnemyGreen>(Enemies, 11, (int)windowWidth, y: 200);
+        AddEnemyRow<EnemyGreen>(Enemies, 11, (int)windowWidth, y: 150);
+        AddEnemyRow<EnemyRed>(Enemies, 11, (int)windowWidth, y: 200);
     }
 
     internal void Draw(RenderWindow window)
@@ -35,8 +35,9 @@ internal class EnemyWaveManager
         }
     }
 
-    internal bool CollidesWith(SpaceShipBullet bullet)
+    internal bool CollidesWith(SpaceShipBullet bullet, out int score)
     {
+        score = 0;
         bool collisionDetected = false;
         foreach (var enemyRow in Enemies)
         {
@@ -46,6 +47,7 @@ internal class EnemyWaveManager
                 if ((bullet.PositionX >= enemy.PositionX && bullet.PositionX <= enemy.PositionX + enemy.Width)
                     && bullet.PositionY <= enemy.PositionY && bullet.PositionY >= enemy.PositionY - enemy.Height)
                 {
+                    score += enemy.ScoreValue;
                     enemyRow.RemoveAt(i);
                     i--;
                     collisionDetected = true;

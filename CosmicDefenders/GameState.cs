@@ -11,6 +11,8 @@ internal class GameState
     RenderWindow _window;
     SpaceShip _spaceShip;
     List<SpaceShipBullet> _bullets;
+    int _score = 0;
+    Font _font;
 
     public GameState()
     {
@@ -19,6 +21,7 @@ internal class GameState
         _window.SetFramerateLimit(60);
         _window.SetVerticalSyncEnabled(true);
 
+        _font = new Font("Assets/SairaStencilOne-Regular.ttf");
         _spaceShip = new SpaceShip();
         _bullets = new List<SpaceShipBullet>();
 
@@ -69,8 +72,10 @@ internal class GameState
             for (int i = 0; i < _bullets.Count; i++)
             {
                 SpaceShipBullet? bullet = _bullets[i];
-                if (bullet.PositionY < 0 || waveManager.CollidesWith(bullet))
+                int score = 0;
+                if (bullet.PositionY < 0 || waveManager.CollidesWith(bullet, out score))
                 {
+                    _score += score;
                     _bullets.RemoveAt(i);
                     i--;
                     continue;
@@ -82,6 +87,12 @@ internal class GameState
 
             waveManager.Update((int)_window.Size.X);
             waveManager.Draw(_window);
+
+            Text scoreText = new Text($"Score: {_score}", _font, 20);
+            scoreText.FillColor = Color.White;
+            long scoreX = _window.Size.X - (int)scoreText.GetGlobalBounds().Width - 10;
+            scoreText.Position = new Vector2f(scoreX, 10);
+            _window.Draw(scoreText);
 
             _window.Display();
         }
