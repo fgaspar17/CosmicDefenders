@@ -8,6 +8,7 @@ public interface IEnemy
     float PositionY { get; }
     float PositionX { get; }
     int Height { get; }
+    int ScoreValue { get; }
 
     public void PositionEnemy(float x, float y);
     public void Draw(RenderWindow window);
