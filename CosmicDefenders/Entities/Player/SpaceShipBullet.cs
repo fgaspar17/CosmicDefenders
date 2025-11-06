@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace CosmicDefenders.Entities.Player;
 
-internal class SpaceShipBullet
+internal class SpaceShipBullet : IBullet
 {
     private Sprite Sprite { get; set; }
     public float PositionX

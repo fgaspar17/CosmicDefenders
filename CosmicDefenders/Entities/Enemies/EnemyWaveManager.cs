@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,10 @@ internal class EnemyWaveManager
 {
     public List<List<IEnemy>> Enemies { get; private set; }
     private bool rightDirection = true;
+    private Stopwatch? EnemyShotTimer { get; set; }
+    private int _enemyShootingCooldown;
+    private const int _enemyShootingCooldownMax = 3_000;
+    private const int _enemyShootingCooldownMin = 2_000;
     public void CreateEnemies(float windowHeigh, float windowWidth)
     {
         Enemies = new List<List<IEnemy>>();
@@ -20,6 +25,8 @@ internal class EnemyWaveManager
         // 5 rows, 11 columns
 
         AddEnemyRow<EnemyYellow>(Enemies, 11, (int)windowWidth, y: 100);
+        EnemyShotTimer = Stopwatch.StartNew();
+        _enemyShootingCooldown = GetRandomShootingCooldown();
         AddEnemyRow<EnemyGreen>(Enemies, 11, (int)windowWidth, y: 150);
         AddEnemyRow<EnemyRed>(Enemies, 11, (int)windowWidth, y: 200);
     }
@@ -78,13 +85,27 @@ internal class EnemyWaveManager
         enemies.Add(enemyRow);
     }
 
-    internal void Update(int maxRight)
+    internal void Update(int maxRight, out List<EnemyYellowBullet> enemyYellowBullets)
     {
+        enemyYellowBullets = new List<EnemyYellowBullet>();
         bool oldDirection = rightDirection;
         if (rightDirection)
         {
             foreach (var enemyRow in Enemies)
             {
+                List<IShooter> enemiesShooter = enemyRow.OfType<IShooter>().ToList();
+                if (enemiesShooter.Count > 0)
+                {
+                    if (_enemyShootingCooldown <= EnemyShotTimer!.ElapsedMilliseconds)
+                    {
+                        int randomIndex = RandomSingleton.Instance.Next(0, enemiesShooter.Count);
+                        if (enemiesShooter[randomIndex].TryShoot(out IBullet? bullet))
+                            enemyYellowBullets.Add((bullet as EnemyYellowBullet)!);
+                        EnemyShotTimer.Restart();
+                        _enemyShootingCooldown = GetRandomShootingCooldown();
+                    }
+                }
+
                 foreach (var enemy in enemyRow)
                 {
                     enemy.PositionEnemy(enemy.PositionX + 2, enemy.PositionY);
@@ -99,6 +120,11 @@ internal class EnemyWaveManager
         {
             foreach (var enemyRow in Enemies)
             {
+                if (enemyRow.OfType<IShooter>().Any())
+                {
+
+                }
+
                 foreach (var enemy in enemyRow)
                 {
                     enemy.PositionEnemy(enemy.PositionX - 2, enemy.PositionY);
@@ -120,5 +146,10 @@ internal class EnemyWaveManager
                 }
             }
         }
+    }
+
+    private int GetRandomShootingCooldown()
+    {
+        return RandomSingleton.Instance.Next(_enemyShootingCooldownMin, _enemyShootingCooldownMax);
     }
 }
