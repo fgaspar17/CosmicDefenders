@@ -1,9 +1,10 @@
-﻿using SFML.Graphics;
+﻿using CosmicDefenders.Entities.Player;
+using SFML.Graphics;
 using SFML.System;
 
 namespace CosmicDefenders.Entities.Enemies;
 
-internal class EnemyYellow : IEnemy
+internal class EnemyYellow : IEnemy, IShooter
 {
     private Sprite Sprite { get; set; }
 
@@ -36,5 +37,11 @@ internal class EnemyYellow : IEnemy
     public void Draw(RenderWindow window)
     {
         window.Draw(Sprite);
+    }
+
+    public bool TryShoot(out IBullet? bullet)
+    {
+        bullet = new EnemyYellowBullet(PositionX + ((float)this.Sprite.GetGlobalBounds().Width) / 2 - 10, PositionY + Height);
+        return true;
     }
 }

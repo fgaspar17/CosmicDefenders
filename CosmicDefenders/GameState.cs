@@ -1,4 +1,5 @@
-﻿using CosmicDefenders.Entities.Enemies;
+﻿using CosmicDefenders.Entities;
+using CosmicDefenders.Entities.Enemies;
 using CosmicDefenders.Entities.Player;
 using SFML.Graphics;
 using SFML.System;
@@ -10,7 +11,8 @@ internal class GameState
 {
     RenderWindow _window;
     SpaceShip _spaceShip;
-    List<SpaceShipBullet> _bullets;
+    List<SpaceShipBullet> _playerBullets;
+    List<EnemyYellowBullet> _enemyBullets;
     int _score = 0;
     Font _font;
 
@@ -23,7 +25,8 @@ internal class GameState
 
         _font = new Font("Assets/SairaStencilOne-Regular.ttf");
         _spaceShip = new SpaceShip();
-        _bullets = new List<SpaceShipBullet>();
+        _playerBullets = new List<SpaceShipBullet>();
+        _enemyBullets = new List<EnemyYellowBullet>();
 
         // Subscription to keyboard events
         _window.KeyPressed += (sender, e) =>
@@ -60,23 +63,21 @@ internal class GameState
 
             if (Keyboard.IsKeyPressed(Keyboard.Key.Space))
             {
-                if (_spaceShip.TryShoot(out var spaceShipBullet))
-                    _bullets.Add(spaceShipBullet);
+                if (_spaceShip.TryShoot(out IBullet? spaceShipBullet))
+                    _playerBullets.Add((spaceShipBullet as SpaceShipBullet)!);
             }
 
             _spaceShip.Draw(_window);
             _spaceShip.DrawDebug(_window);
 
-
-
-            for (int i = 0; i < _bullets.Count; i++)
+            for (int i = 0; i < _playerBullets.Count; i++)
             {
-                SpaceShipBullet? bullet = _bullets[i];
+                SpaceShipBullet? bullet = _playerBullets[i];
                 int score = 0;
                 if (bullet.PositionY < 0 || waveManager.CollidesWith(bullet, out score))
                 {
                     _score += score;
-                    _bullets.RemoveAt(i);
+                    _playerBullets.RemoveAt(i);
                     i--;
                     continue;
                 }
@@ -85,8 +86,21 @@ internal class GameState
                 bullet.Draw(_window);
             }
 
-            waveManager.Update((int)_window.Size.X);
+            waveManager.Update((int)_window.Size.X, out List<EnemyYellowBullet> enemyBullets);
+            _enemyBullets.AddRange(enemyBullets);
             waveManager.Draw(_window);
+            for (int i = 0; i < _enemyBullets.Count; i++)
+            {
+                EnemyYellowBullet? bullet = _enemyBullets[i];
+                if (bullet.PositionY > _window.Size.Y)
+                {
+                    _enemyBullets.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+                bullet.Update();
+                bullet.Draw(_window);
+            }
 
             Text scoreText = new Text($"Score: {_score}", _font, 20);
             scoreText.FillColor = Color.White;

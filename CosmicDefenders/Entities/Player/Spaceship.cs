@@ -4,7 +4,7 @@ using SFML.System;
 
 namespace CosmicDefenders.Entities.Player;
 
-internal class SpaceShip
+internal class SpaceShip : IShooter
 {
     private Sprite Sprite { get; set; }
     private Stopwatch ShotTimer { get; } = Stopwatch.StartNew();
@@ -34,7 +34,7 @@ internal class SpaceShip
         ShotTimer.Start();
     }
 
-    public bool TryShoot(out SpaceShipBullet bullet)
+    public bool TryShoot(out IBullet? bullet)
     {
         bullet = null;
 
