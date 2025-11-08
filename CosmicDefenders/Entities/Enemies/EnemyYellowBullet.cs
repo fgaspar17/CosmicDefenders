@@ -28,7 +28,7 @@ internal class EnemyYellowBullet : IBullet
 
     public void Update()
     {
-        Shape.Position = new Vector2f(Shape.Position.X, Shape.Position.Y + 10);
+        Shape.Position = new Vector2f(Shape.Position.X, Shape.Position.Y + 2);
     }
 
     public void Draw(RenderWindow window)
