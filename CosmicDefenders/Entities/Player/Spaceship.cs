@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using CosmicDefenders.Entities.Enemies;
 using SFML.Graphics;
 using SFML.System;
 
@@ -22,6 +23,7 @@ internal class SpaceShip : IShooter
     }
 
     public float Width { get => Sprite.GetGlobalBounds().Width; }
+    public float Height { get => Sprite.GetGlobalBounds().Height; }
 
     public SpaceShip() : this(360, 500) { }
 
@@ -65,5 +67,22 @@ internal class SpaceShip : IShooter
             debugRect.FillColor = Color.Transparent;
             window.Draw(debugRect);
         }
+    }
+
+    internal bool CollidesWith(EnemyYellowBullet bullet, out int life)
+    {
+        life = 0;
+        bool collisionDetected = false;
+
+        // TODO: See collision detection, it seems that does not work properly
+        SpaceShip? ship = this;
+        if ((bullet.PositionX >= ship.PositionX && bullet.PositionX <= ship.PositionX + ship.Width)
+            && bullet.PositionY >= ship.PositionY && bullet.PositionY <= ship.PositionY + ship.Height)
+        {
+            life += 1;
+            collisionDetected = true;
+        }
+
+        return collisionDetected;
     }
 }

@@ -14,6 +14,7 @@ internal class GameState
     List<SpaceShipBullet> _playerBullets;
     List<EnemyYellowBullet> _enemyBullets;
     int _score = 0;
+    int _life = 3;
     Font _font;
 
     public GameState()
@@ -92,8 +93,11 @@ internal class GameState
             for (int i = 0; i < _enemyBullets.Count; i++)
             {
                 EnemyYellowBullet? bullet = _enemyBullets[i];
-                if (bullet.PositionY > _window.Size.Y)
+                int life = 0;
+                if (bullet.PositionY > _window.Size.Y ||
+            _spaceShip.CollidesWith(bullet, out life))
                 {
+                    _life -= life;
                     _enemyBullets.RemoveAt(i);
                     i--;
                     continue;
@@ -102,11 +106,18 @@ internal class GameState
                 bullet.Draw(_window);
             }
 
+
             Text scoreText = new Text($"Score: {_score}", _font, 20);
             scoreText.FillColor = Color.White;
             long scoreX = _window.Size.X - (int)scoreText.GetGlobalBounds().Width - 10;
             scoreText.Position = new Vector2f(scoreX, 10);
             _window.Draw(scoreText);
+
+            for (int i = 0; i < _life; i++)
+            {
+                Life lifeIcon = new Life(10 + i * 18, 10);
+                lifeIcon.Draw(_window);
+            }
 
             _window.Display();
         }
