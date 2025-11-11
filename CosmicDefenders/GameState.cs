@@ -12,6 +12,7 @@ internal class GameState
     RenderWindow _window;
     SpaceShip _spaceShip;
     List<SpaceShipBullet> _playerBullets;
+    List<SpaceShipBulletExplosion> _explosions;
     List<EnemyYellowBullet> _enemyBullets;
     int _score = 0;
     int _life = 3;
@@ -27,6 +28,7 @@ internal class GameState
         _font = new Font("Assets/SairaStencilOne-Regular.ttf");
         _spaceShip = new SpaceShip();
         _playerBullets = new List<SpaceShipBullet>();
+        _explosions = new List<SpaceShipBulletExplosion>();
         _enemyBullets = new List<EnemyYellowBullet>();
 
         // Subscription to keyboard events
@@ -75,16 +77,38 @@ internal class GameState
             {
                 SpaceShipBullet? bullet = _playerBullets[i];
                 int score = 0;
-                if (bullet.PositionY < 0 || waveManager.CollidesWith(bullet, out score))
+                if (bullet.PositionY < 0)
                 {
-                    _score += score;
                     _playerBullets.RemoveAt(i);
                     i--;
                     continue;
                 }
 
+                if (waveManager.CollidesWith(bullet, out score))
+                {
+                    _score += score;
+                    _playerBullets.RemoveAt(i);
+                    i--;
+                    _explosions.Add(new SpaceShipBulletExplosion(bullet.PositionX, bullet.PositionY));
+                }
+
                 bullet.Update();
-                bullet.Draw(_window);
+            }
+
+            for (int i = 0; i < _explosions.Count; i++)
+            {
+                SpaceShipBulletExplosion? explosion = _explosions[i];
+                explosion.Update();
+                if (explosion.IsFinished)
+                {
+                    _explosions.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+                else
+                {
+                    explosion.Draw(_window);
+                }
             }
 
             waveManager.Update((int)_window.Size.X, out List<EnemyYellowBullet> enemyBullets);
@@ -117,6 +141,11 @@ internal class GameState
             {
                 Life lifeIcon = new Life(10 + i * 18, 10);
                 lifeIcon.Draw(_window);
+            }
+
+            foreach (var bullet in _playerBullets)
+            {
+                bullet.Draw(_window);
             }
 
             _window.Display();

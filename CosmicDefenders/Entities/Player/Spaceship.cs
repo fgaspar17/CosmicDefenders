@@ -74,7 +74,6 @@ internal class SpaceShip : IShooter
         life = 0;
         bool collisionDetected = false;
 
-        // TODO: See collision detection, it seems that does not work properly
         SpaceShip? ship = this;
         if ((bullet.PositionX >= ship.PositionX && bullet.PositionX <= ship.PositionX + ship.Width)
             && bullet.PositionY >= ship.PositionY && bullet.PositionY <= ship.PositionY + ship.Height)
