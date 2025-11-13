@@ -8,7 +8,10 @@ namespace CosmicDefenders.Entities.Player;
 internal class SpaceShip : IShooter
 {
     private Sprite Sprite { get; set; }
+    private Shader? Shader { get; set; }
     private Stopwatch ShotTimer { get; } = Stopwatch.StartNew();
+    private float _damageFlash = 0f;
+    Clock Clock { get; } = new();
 
     public float PositionX
     {
@@ -33,6 +36,12 @@ internal class SpaceShip : IShooter
         Texture texture = new(Path.Combine("Assets", "DurrrSpaceShip.png"));
         Sprite = new(texture);
         Sprite.Position = new Vector2f(positionX, positionY);
+
+        if (Shader.IsAvailable)
+        {
+            Shader = new Shader(null, null, Path.Combine("Assets", "damaged.frag"));
+        }
+
         ShotTimer.Start();
     }
 
@@ -52,7 +61,22 @@ internal class SpaceShip : IShooter
 
     public void Draw(RenderWindow window)
     {
-        window.Draw(Sprite);
+        if (Shader.IsAvailable)
+        {
+            Shader!.SetUniform("time", Clock.ElapsedTime.AsMilliseconds());
+            Shader.SetUniform("damageFlash", _damageFlash);
+            window.Draw(Sprite, new RenderStates(Shader));
+            if (_damageFlash > 0f)
+            {
+                _damageFlash -= 0.1f;
+                if (_damageFlash < 0f)
+                    _damageFlash = 0f;
+            }
+        }
+        else
+        {
+            window.Draw(Sprite);
+        }
     }
 
     public void DrawDebug(RenderWindow window)
@@ -74,13 +98,13 @@ internal class SpaceShip : IShooter
         life = 0;
         bool collisionDetected = false;
 
-        // TODO: See collision detection, it seems that does not work properly
         SpaceShip? ship = this;
         if ((bullet.PositionX >= ship.PositionX && bullet.PositionX <= ship.PositionX + ship.Width)
             && bullet.PositionY >= ship.PositionY && bullet.PositionY <= ship.PositionY + ship.Height)
         {
             life += 1;
             collisionDetected = true;
+            _damageFlash = 2f;
         }
 
         return collisionDetected;
