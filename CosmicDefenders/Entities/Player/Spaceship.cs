@@ -10,6 +10,8 @@ internal class SpaceShip : IShooter
     private Sprite Sprite { get; set; }
     private Shader? Shader { get; set; }
     private Stopwatch ShotTimer { get; } = Stopwatch.StartNew();
+    private float _damageFlash = 0f;
+    Clock Clock { get; } = new();
 
     public float PositionX
     {
@@ -61,7 +63,15 @@ internal class SpaceShip : IShooter
     {
         if (Shader.IsAvailable)
         {
+            Shader!.SetUniform("time", Clock.ElapsedTime.AsMilliseconds());
+            Shader.SetUniform("damageFlash", _damageFlash);
             window.Draw(Sprite, new RenderStates(Shader));
+            if (_damageFlash > 0f)
+            {
+                _damageFlash -= 0.1f;
+                if (_damageFlash < 0f)
+                    _damageFlash = 0f;
+            }
         }
         else
         {
@@ -94,6 +104,7 @@ internal class SpaceShip : IShooter
         {
             life += 1;
             collisionDetected = true;
+            _damageFlash = 2f;
         }
 
         return collisionDetected;
