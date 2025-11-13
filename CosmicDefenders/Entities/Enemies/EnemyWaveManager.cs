@@ -42,9 +42,10 @@ internal class EnemyWaveManager
         }
     }
 
-    internal bool CollidesWith(SpaceShipBullet bullet, out int score)
+    internal bool CollidesWith(SpaceShipBullet bullet, out int score, out IEnemy enemyKilled)
     {
         score = 0;
+        enemyKilled = null;
         bool collisionDetected = false;
         foreach (var enemyRow in Enemies)
         {
@@ -55,6 +56,7 @@ internal class EnemyWaveManager
                     && bullet.PositionY <= enemy.PositionY && bullet.PositionY >= enemy.PositionY - enemy.Height)
                 {
                     score += enemy.ScoreValue;
+                    enemyKilled = enemy;
                     enemyRow.RemoveAt(i);
                     i--;
                     collisionDetected = true;

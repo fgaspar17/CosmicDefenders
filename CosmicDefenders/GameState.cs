@@ -84,12 +84,12 @@ internal class GameState
                     continue;
                 }
 
-                if (waveManager.CollidesWith(bullet, out score))
+                if (waveManager.CollidesWith(bullet, out score, out IEnemy enemyKilled))
                 {
                     _score += score;
                     _playerBullets.RemoveAt(i);
                     i--;
-                    _explosions.Add(new SpaceShipBulletExplosion(bullet.PositionX, bullet.PositionY));
+                    _explosions.Add(new SpaceShipBulletExplosion(enemyKilled.PositionX + enemyKilled.Width / 2, enemyKilled.PositionY + enemyKilled.Height / 2));
                 }
 
                 bullet.Update();
