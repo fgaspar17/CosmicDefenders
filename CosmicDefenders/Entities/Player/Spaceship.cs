@@ -8,6 +8,7 @@ namespace CosmicDefenders.Entities.Player;
 internal class SpaceShip : IShooter
 {
     private Sprite Sprite { get; set; }
+    private Shader? Shader { get; set; }
     private Stopwatch ShotTimer { get; } = Stopwatch.StartNew();
 
     public float PositionX
@@ -33,6 +34,12 @@ internal class SpaceShip : IShooter
         Texture texture = new(Path.Combine("Assets", "DurrrSpaceShip.png"));
         Sprite = new(texture);
         Sprite.Position = new Vector2f(positionX, positionY);
+
+        if (Shader.IsAvailable)
+        {
+            Shader = new Shader(null, null, Path.Combine("Assets", "damaged.frag"));
+        }
+
         ShotTimer.Start();
     }
 
@@ -52,7 +59,14 @@ internal class SpaceShip : IShooter
 
     public void Draw(RenderWindow window)
     {
-        window.Draw(Sprite);
+        if (Shader.IsAvailable)
+        {
+            window.Draw(Sprite, new RenderStates(Shader));
+        }
+        else
+        {
+            window.Draw(Sprite);
+        }
     }
 
     public void DrawDebug(RenderWindow window)

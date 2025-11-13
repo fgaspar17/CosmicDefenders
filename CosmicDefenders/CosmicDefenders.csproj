@@ -15,6 +15,9 @@
     <None Update="Assets\bullet.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\damaged.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\DurrrSpaceShip.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
