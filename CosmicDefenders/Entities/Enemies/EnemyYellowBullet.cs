@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using SFML.Audio;
+using SFML.Graphics;
 using SFML.System;
 
 namespace CosmicDefenders.Entities.Enemies;
@@ -24,6 +25,10 @@ internal class EnemyYellowBullet : IBullet
         Shape.Size = new Vector2f(5, 15);
         Shape.FillColor = Color.Yellow;
         Shape.Position = new Vector2f(positionX, positionY);
+
+        SoundBuffer shootBuffer = new SoundBuffer(Path.Combine("Assets", "BulletEnemyShoot.mp3"));
+        Sound shootSound = new Sound(shootBuffer);
+        shootSound.Play();
     }
 
     public void Update()
