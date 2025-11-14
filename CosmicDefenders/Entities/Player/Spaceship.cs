@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using CosmicDefenders.Entities.Enemies;
+using SFML.Audio;
 using SFML.Graphics;
 using SFML.System;
 
@@ -104,6 +105,9 @@ internal class SpaceShip : IShooter
         {
             life += 1;
             collisionDetected = true;
+            SoundBuffer hitBuffer = new SoundBuffer(Path.Combine("Assets", "PlayerHit.wav"));
+            Sound hitSound = new Sound(hitBuffer);
+            hitSound.Play();
             _damageFlash = 2f;
         }
 

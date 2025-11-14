@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using SFML.Audio;
+using SFML.Graphics;
 using SFML.System;
 
 namespace CosmicDefenders.Entities.Player;
@@ -24,6 +25,10 @@ internal class SpaceShipBullet : IBullet
         Texture texture = new(Path.Combine("Assets", "bullet.png"));
         Sprite = new(texture);
         Sprite.Position = new Vector2f(positionX, positionY);
+
+        SoundBuffer shootBuffer = new SoundBuffer(Path.Combine("Assets", "BulletSpaceShipShoot.mp3"));
+        Sound shootSound = new Sound(shootBuffer);
+        shootSound.Play();
     }
 
     public void Update()

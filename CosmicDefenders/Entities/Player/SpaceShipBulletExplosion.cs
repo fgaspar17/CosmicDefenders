@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using SFML.Audio;
+using SFML.Graphics;
 using SFML.System;
 
 namespace CosmicDefenders.Entities.Player;
@@ -25,6 +26,10 @@ internal class SpaceShipBulletExplosion
         Sprite.Origin = new Vector2f(bounds.Width / 2f, bounds.Height / 2f);
         Sprite.Position = new Vector2f(positionX, positionY);
         Sprite.Scale = new Vector2f(0.3f, 0.3f);
+
+        SoundBuffer explosionBuffer = new SoundBuffer(Path.Combine("Assets", "ExplosionHit.mp3"));
+        Sound explosionSound = new Sound(explosionBuffer);
+        explosionSound.Play();
     }
 
     public void Update()
