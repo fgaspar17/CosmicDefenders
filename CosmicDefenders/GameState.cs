@@ -1,6 +1,7 @@
 ﻿using CosmicDefenders.Entities;
 using CosmicDefenders.Entities.Enemies;
 using CosmicDefenders.Entities.Player;
+using SFML.Audio;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -43,6 +44,11 @@ internal class GameState
 
     public void Run()
     {
+        Music music = new Music("Assets/MainTheme.mp3");
+        music.Loop = true;
+        music.Volume = 50;
+        music.Play();
+
         EnemyWaveManager waveManager = new EnemyWaveManager();
         waveManager.CreateEnemies(_window.Size.Y, _window.Size.X);
 
