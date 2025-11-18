@@ -10,7 +10,6 @@ namespace CosmicDefenders;
 
 internal class GameState
 {
-    RenderWindow _window;
     SpaceShip _spaceShip;
     List<SpaceShipBullet> _playerBullets;
     List<SpaceShipBulletExplosion> _explosions;
@@ -18,143 +17,170 @@ internal class GameState
     int _score = 0;
     int _life = 3;
     Font _font;
+    EnemyWaveManager _waveManager;
 
-    public GameState()
+    public GameState(int height, int width)
     {
-        _window = new RenderWindow(new VideoMode(800, 600), "Cosmic Defenders");
-        _window.Closed += (_, __) => _window.Close();
-        _window.SetFramerateLimit(60);
-        _window.SetVerticalSyncEnabled(true);
-
         _font = new Font("Assets/SairaStencilOne-Regular.ttf");
         _spaceShip = new SpaceShip();
         _playerBullets = new List<SpaceShipBullet>();
         _explosions = new List<SpaceShipBulletExplosion>();
         _enemyBullets = new List<EnemyYellowBullet>();
-
-        // Subscription to keyboard events
-        _window.KeyPressed += (sender, e) =>
-        {
-            if (e.Code == Keyboard.Key.Escape)
-            {
-                _window.Close();
-            }
-        };
+        _waveManager = new EnemyWaveManager();
+        _waveManager.CreateEnemies(height, width);
     }
 
-    public void Run()
+    public void Clear(RenderWindow window)
     {
-        Music music = new Music("Assets/MainTheme.mp3");
-        music.Loop = true;
-        music.Volume = 50;
-        music.Play();
+        window.Clear(Color.Black);
+    }
 
-        EnemyWaveManager waveManager = new EnemyWaveManager();
-        waveManager.CreateEnemies(_window.Size.Y, _window.Size.X);
+    public void Update(RenderWindow window)
+    {
+        window.DispatchEvents();
 
-        while (_window.IsOpen)
+        KeyboardInput(window);
+
+        UpdateSpaceShipBullets(_waveManager);
+
+        UpdateExplosions(_explosions);
+
+        UpdateEnemies(_waveManager, window.Size.X);
+
+        UpdateEnemyBullets(_enemyBullets, window.Size.Y);
+
+    }
+
+    private void UpdateEnemyBullets(List<EnemyYellowBullet> enemyBullets, float height)
+    {
+        for (int i = 0; i < _enemyBullets.Count; i++)
         {
-            _window.DispatchEvents();
-            _window.Clear(Color.Black);
-
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+            EnemyYellowBullet? bullet = _enemyBullets[i];
+            int life = 0;
+            if (bullet.PositionY > height ||
+        _spaceShip.CollidesWith(bullet, out life))
             {
-                float newPositionX = _spaceShip.PositionX - 10;
-                if (newPositionX > 0)
-                    _spaceShip.PositionX = newPositionX;
+                _life -= life;
+                _enemyBullets.RemoveAt(i);
+                i--;
+                continue;
             }
-            else if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+            bullet.Update();
+        }
+    }
+
+    private void UpdateEnemies(EnemyWaveManager waveManager, float width)
+    {
+        waveManager.Update((int)width, out List<EnemyYellowBullet> enemyBullets);
+        _enemyBullets.AddRange(enemyBullets);
+    }
+
+    private void UpdateExplosions(List<SpaceShipBulletExplosion> explosions)
+    {
+        for (int i = 0; i < explosions.Count; i++)
+        {
+            SpaceShipBulletExplosion? explosion = explosions[i];
+            explosion.Update();
+            if (explosion.IsFinished)
             {
-                float newPositionX = _spaceShip.PositionX + 10;
-                if (newPositionX < _window.Size.X - _spaceShip.Width)
-                    _spaceShip.PositionX = newPositionX;
+                explosions.RemoveAt(i);
+                i--;
+                continue;
             }
+        }
+    }
 
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Space))
+    private void UpdateSpaceShipBullets(EnemyWaveManager waveManager)
+    {
+        for (int i = 0; i < _playerBullets.Count; i++)
+        {
+            SpaceShipBullet? bullet = _playerBullets[i];
+            int score = 0;
+            if (bullet.PositionY < 0)
             {
-                if (_spaceShip.TryShoot(out IBullet? spaceShipBullet))
-                    _playerBullets.Add((spaceShipBullet as SpaceShipBullet)!);
-            }
-
-            _spaceShip.Draw(_window);
-            _spaceShip.DrawDebug(_window);
-
-            for (int i = 0; i < _playerBullets.Count; i++)
-            {
-                SpaceShipBullet? bullet = _playerBullets[i];
-                int score = 0;
-                if (bullet.PositionY < 0)
-                {
-                    _playerBullets.RemoveAt(i);
-                    i--;
-                    continue;
-                }
-
-                if (waveManager.CollidesWith(bullet, out score, out IEnemy enemyKilled))
-                {
-                    _score += score;
-                    _playerBullets.RemoveAt(i);
-                    i--;
-                    _explosions.Add(new SpaceShipBulletExplosion(enemyKilled.PositionX + enemyKilled.Width / 2, enemyKilled.PositionY + enemyKilled.Height / 2));
-                }
-
-                bullet.Update();
-            }
-
-            for (int i = 0; i < _explosions.Count; i++)
-            {
-                SpaceShipBulletExplosion? explosion = _explosions[i];
-                explosion.Update();
-                if (explosion.IsFinished)
-                {
-                    _explosions.RemoveAt(i);
-                    i--;
-                    continue;
-                }
-                else
-                {
-                    explosion.Draw(_window);
-                }
+                _playerBullets.RemoveAt(i);
+                i--;
+                continue;
             }
 
-            waveManager.Update((int)_window.Size.X, out List<EnemyYellowBullet> enemyBullets);
-            _enemyBullets.AddRange(enemyBullets);
-            waveManager.Draw(_window);
-            for (int i = 0; i < _enemyBullets.Count; i++)
+            if (waveManager.CollidesWith(bullet, out score, out IEnemy enemyKilled))
             {
-                EnemyYellowBullet? bullet = _enemyBullets[i];
-                int life = 0;
-                if (bullet.PositionY > _window.Size.Y ||
-            _spaceShip.CollidesWith(bullet, out life))
-                {
-                    _life -= life;
-                    _enemyBullets.RemoveAt(i);
-                    i--;
-                    continue;
-                }
-                bullet.Update();
-                bullet.Draw(_window);
+                _score += score;
+                _playerBullets.RemoveAt(i);
+                i--;
+                _explosions.Add(new SpaceShipBulletExplosion(enemyKilled.PositionX + enemyKilled.Width / 2, enemyKilled.PositionY + enemyKilled.Height / 2));
             }
 
+            bullet.Update();
+        }
+    }
 
-            Text scoreText = new Text($"Score: {_score}", _font, 20);
-            scoreText.FillColor = Color.White;
-            long scoreX = _window.Size.X - (int)scoreText.GetGlobalBounds().Width - 10;
-            scoreText.Position = new Vector2f(scoreX, 10);
-            _window.Draw(scoreText);
+    public void Draw(RenderWindow window)
+    {
+        DrawSpaceShip(window, _spaceShip);
 
-            for (int i = 0; i < _life; i++)
-            {
-                Life lifeIcon = new Life(10 + i * 18, 10);
-                lifeIcon.Draw(_window);
-            }
+        DrawSpaceShipBullets(window, _playerBullets);
 
-            foreach (var bullet in _playerBullets)
-            {
-                bullet.Draw(_window);
-            }
+        DrawExplosions(window, _explosions);
 
-            _window.Display();
+        _waveManager.Draw(window);
+
+        DrawEnemyBullets(window);
+
+        DrawScoreText(window, _score);
+
+        DrawLives(window);
+
+        window.Display();
+    }
+
+    private void DrawSpaceShipBullets(RenderWindow window, List<SpaceShipBullet> playerBullets)
+    {
+        foreach (var bullet in playerBullets)
+        {
+            bullet.Draw(window);
+        }
+    }
+
+    private void DrawLives(RenderWindow window)
+    {
+        for (int i = 0; i < _life; i++)
+        {
+            Life lifeIcon = new Life(10 + i * 18, 10);
+            lifeIcon.Draw(window);
+        }
+    }
+
+    private void DrawScoreText(RenderWindow window, int score)
+    {
+        Text scoreText = new Text($"Score: {score}", _font, 20);
+        scoreText.FillColor = Color.White;
+        long scoreX = window.Size.X - (int)scoreText.GetGlobalBounds().Width - 10;
+        scoreText.Position = new Vector2f(scoreX, 10);
+        window.Draw(scoreText);
+    }
+
+    private void DrawEnemyBullets(RenderWindow window)
+    {
+        for (int i = 0; i < _enemyBullets.Count; i++)
+        {
+            EnemyYellowBullet? bullet = _enemyBullets[i];
+            bullet.Draw(window);
+        }
+    }
+
+    private void DrawSpaceShip(RenderWindow window, SpaceShip spaceShip)
+    {
+        _spaceShip.Draw(window);
+        _spaceShip.DrawDebug(window);
+    }
+
+    private void DrawExplosions(RenderWindow window, List<SpaceShipBulletExplosion> explosions)
+    {
+        for (int i = 0; i < explosions.Count; i++)
+        {
+            SpaceShipBulletExplosion? explosion = explosions[i];
+            explosion.Draw(window);
         }
     }
 
@@ -167,5 +193,27 @@ internal class GameState
         debugRect.OutlineThickness = 1;
         debugRect.FillColor = Color.Transparent;
         return debugRect;
+    }
+
+    public void KeyboardInput(RenderWindow window)
+    {
+        if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+        {
+            float newPositionX = _spaceShip.PositionX - 10;
+            if (newPositionX > 0)
+                _spaceShip.PositionX = newPositionX;
+        }
+        else if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+        {
+            float newPositionX = _spaceShip.PositionX + 10;
+            if (newPositionX < window.Size.X - _spaceShip.Width)
+                _spaceShip.PositionX = newPositionX;
+        }
+
+        if (Keyboard.IsKeyPressed(Keyboard.Key.Space))
+        {
+            if (_spaceShip.TryShoot(out IBullet? spaceShipBullet))
+                _playerBullets.Add((spaceShipBullet as SpaceShipBullet)!);
+        }
     }
 }
