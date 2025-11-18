@@ -14,9 +14,7 @@ class Program
         window.SetFramerateLimit(60); 
         window.SetVerticalSyncEnabled(true);
 
-        GameState gameState = new GameState();
-        gameState.Run();
+        GameRunner runner = new GameRunner();
+        runner.Run();
     }
-
-    
 }
