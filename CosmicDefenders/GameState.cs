@@ -1,14 +1,14 @@
-﻿using CosmicDefenders.Entities;
+﻿using CosmicDefenders.Constants;
+using CosmicDefenders.Entities;
 using CosmicDefenders.Entities.Enemies;
 using CosmicDefenders.Entities.Player;
-using SFML.Audio;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 
 namespace CosmicDefenders;
 
-internal class GameState
+internal class GameState : IGameState
 {
     SpaceShip _spaceShip;
     List<SpaceShipBullet> _playerBullets;
@@ -195,7 +195,7 @@ internal class GameState
         return debugRect;
     }
 
-    public void KeyboardInput(RenderWindow window)
+    private void KeyboardInput(RenderWindow window)
     {
         if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
         {
@@ -215,5 +215,10 @@ internal class GameState
             if (_spaceShip.TryShoot(out IBullet? spaceShipBullet))
                 _playerBullets.Add((spaceShipBullet as SpaceShipBullet)!);
         }
+    }
+
+    public int GetState()
+    {
+        return States.GAME_SCREEN;
     }
 }
