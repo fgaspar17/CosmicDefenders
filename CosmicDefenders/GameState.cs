@@ -219,6 +219,9 @@ internal class GameState : IGameState
 
     public int GetState()
     {
+        if (_life <= 0)
+            return States.GAME_OVER_SCREEN;
+
         return States.GAME_SCREEN;
     }
 }
