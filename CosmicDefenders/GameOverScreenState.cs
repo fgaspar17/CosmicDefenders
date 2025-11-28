@@ -1,4 +1,5 @@
-﻿using CosmicDefenders.Constants;
+﻿using System.Diagnostics;
+using CosmicDefenders.Constants;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -8,14 +9,18 @@ namespace CosmicDefenders;
 internal class GameOverScreenState : IGameState
 {
     Font _font;
+    Font _fontPressEnter;
     Text _gameOverText;
-    Text _pressAnyButtonText;
+    Text _pressEnterText;
     bool _nextScreen = false;
+    Clock _clock;
 
     public GameOverScreenState(int windowWidth)
     {
 
         _font = new Font("Assets/SairaStencilOne-Regular.ttf");
+        _fontPressEnter = new Font("Assets/Doto-Black.ttf");
+        _clock = new Clock();
         InitializeTitleText(windowWidth);
         InitializePressAnyButtonText(windowWidth);
     }
@@ -31,11 +36,11 @@ internal class GameOverScreenState : IGameState
 
     private void InitializePressAnyButtonText(int width)
     {
-        _pressAnyButtonText = new Text("PRESS ANY BUTTON TO CONTINUE", _font, 20);
-        _pressAnyButtonText.FillColor = Color.White;
+        _pressEnterText = new Text("PRESS ENTER TO CONTINUE", _fontPressEnter, 20);
+        _pressEnterText.FillColor = Color.White;
         long x = width / 2;
-        _pressAnyButtonText.Origin = new Vector2f(_pressAnyButtonText.GetGlobalBounds().Width / 2, _pressAnyButtonText.GetGlobalBounds().Height / 2);
-        _pressAnyButtonText.Position = new Vector2f(x, 300);
+        _pressEnterText.Origin = new Vector2f(_pressEnterText.GetGlobalBounds().Width / 2, _pressEnterText.GetGlobalBounds().Height / 2);
+        _pressEnterText.Position = new Vector2f(x, 300);
     }
 
     public void Clear(RenderWindow window)
@@ -46,7 +51,8 @@ internal class GameOverScreenState : IGameState
     public void Draw(RenderWindow window)
     {
         window.Draw(_gameOverText);
-        window.Draw(_pressAnyButtonText);
+        if (_clock.ElapsedTime.AsSeconds() % 1 < 0.5f)
+            window.Draw(_pressEnterText);
         window.Display();
     }
 
@@ -58,16 +64,7 @@ internal class GameOverScreenState : IGameState
     public void Update(RenderWindow window)
     {
         window.DispatchEvents();
-        if (Keyboard.IsKeyPressed(Keyboard.Key.Enter) ||
-                 Keyboard.IsKeyPressed(Keyboard.Key.Space) ||
-                 Keyboard.IsKeyPressed(Keyboard.Key.A) ||
-                 Keyboard.IsKeyPressed(Keyboard.Key.D) ||
-                 Keyboard.IsKeyPressed(Keyboard.Key.W) ||
-                 Keyboard.IsKeyPressed(Keyboard.Key.S) ||
-                 Keyboard.IsKeyPressed(Keyboard.Key.Left) ||
-                 Keyboard.IsKeyPressed(Keyboard.Key.Right) ||
-                 Keyboard.IsKeyPressed(Keyboard.Key.Up) ||
-                 Keyboard.IsKeyPressed(Keyboard.Key.Down))
+        if (Keyboard.IsKeyPressed(Keyboard.Key.Enter))
         {
             _nextScreen = true;
         }

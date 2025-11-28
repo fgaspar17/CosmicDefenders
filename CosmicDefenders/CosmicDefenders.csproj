@@ -27,6 +27,9 @@
     <None Update="Assets\damaged.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\Doto-Black.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\DurrrSpaceShip.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
