@@ -14,6 +14,22 @@ internal class Button
     Text _textItem;
     RectangleShape _background;
     public Action? OnClick;
+    private bool _isFocused = false;
+    public bool IsFocused
+    {
+        get => _isFocused; 
+        set
+        {
+            if (value != _isFocused)
+            {
+                if (value)
+                    _textItem.FillColor = Color.Red;
+                else
+                    _textItem.FillColor = Color.White;
+                _isFocused = value;
+            }
+        }
+    }
 
     public Button(Font font, uint fontSize, string text, long x, long y, Action? onClick)
     {
@@ -43,9 +59,24 @@ internal class Button
         if (rect.Contains(mousePointF))
         {
             isMouseOver = true;
+            Enter();
+        }
+        else
+        {
+            Leave();
         }
 
         return isMouseOver;
+    }
+
+    public void Enter()
+    {
+        IsFocused = true;
+    }
+
+    public void Leave()
+    {
+        IsFocused = false;
     }
 
     public void Draw(RenderWindow window)

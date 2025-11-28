@@ -56,6 +56,10 @@ internal class GameRunner
             {
                 gameState = new TitleScreenState((int)_window.Size.X);
             }
+            else if (state == States.GAME_OVER_SCREEN && gameState is not GameOverScreenState)
+            {
+                gameState = new GameOverScreenState((int)_window.Size.X);
+            }
             else if (state == States.SCORE_SCREEN)
             {
                 //gameState = new ScoreScreenState((int)_window.Size.X, (int)_window.Size.Y);
