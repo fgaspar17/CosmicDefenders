@@ -12,6 +12,7 @@ internal class GameState : IGameState
 {
     SpaceShip _spaceShip;
     List<SpaceShipBullet> _playerBullets;
+    List<Asteroid> _asteroids = new List<Asteroid>();
     List<SpaceShipBulletExplosion> _explosions;
     List<EnemyYellowBullet> _enemyBullets;
     int _score = 0;
@@ -24,6 +25,19 @@ internal class GameState : IGameState
         _font = new Font("Assets/SairaStencilOne-Regular.ttf");
         _spaceShip = new SpaceShip();
         _playerBullets = new List<SpaceShipBullet>();
+
+        int asteroidWidth = 64;
+        int asteroidNumber = 3;
+        int asteroidMargin = 100;
+        int totalAsteroidWidth = asteroidNumber * asteroidWidth + (asteroidMargin * (asteroidNumber - 1));
+        int asteroidStartX = (width - totalAsteroidWidth) / 2;
+
+        for (int i = 0; i < 3; i++)
+        {
+            _asteroids.Add(new Asteroid(asteroidStartX, 380));
+            asteroidStartX += asteroidWidth + asteroidMargin;
+        }
+
         _explosions = new List<SpaceShipBulletExplosion>();
         _enemyBullets = new List<EnemyYellowBullet>();
         _waveManager = new EnemyWaveManager();
@@ -41,6 +55,8 @@ internal class GameState : IGameState
 
         KeyboardInput(window);
 
+        UpdateAsteroids(_asteroids, _playerBullets, _enemyBullets);
+
         UpdateSpaceShipBullets(_waveManager);
 
         UpdateExplosions(_explosions);
@@ -48,7 +64,50 @@ internal class GameState : IGameState
         UpdateEnemies(_waveManager, window.Size.X);
 
         UpdateEnemyBullets(_enemyBullets, window.Size.Y);
+    }
 
+    private void UpdateAsteroids(List<Asteroid> asteroids, List<SpaceShipBullet> playerBullets, List<EnemyYellowBullet> enemyBullets)
+    {
+        for (int i = 0; i < asteroids.Count; i++)
+        {
+            Asteroid? asteroid = asteroids[i];
+            // Check collision with player bullets
+            for (int j = 0; j < playerBullets.Count; j++)
+            {
+                SpaceShipBullet? bullet = playerBullets[j];
+                bool destroyed = false;
+                if (asteroid.CollidesWith(bullet, out destroyed))
+                {
+                    playerBullets.RemoveAt(j);
+                    j--;
+                    if (destroyed)
+                    {
+                        asteroids.RemoveAt(i);
+                        i--;
+                        break;
+                    }
+                }
+            }
+            if (i < 0 || i >= asteroids.Count)
+                continue;
+            // Check collision with enemy bullets
+            for (int k = 0; k < enemyBullets.Count; k++)
+            {
+                EnemyYellowBullet? bullet = enemyBullets[k];
+                bool destroyed = false;
+                if (asteroid.CollidesWith(bullet, out destroyed))
+                {
+                    enemyBullets.RemoveAt(k);
+                    k--;
+                    if (destroyed)
+                    {
+                        asteroids.RemoveAt(i);
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private void UpdateEnemyBullets(List<EnemyYellowBullet> enemyBullets, float height)
@@ -131,7 +190,17 @@ internal class GameState : IGameState
 
         DrawLives(window);
 
+        DrawAsteroids(window, _asteroids);
+
         window.Display();
+    }
+
+    private void DrawAsteroids(RenderWindow window, List<Asteroid> asteroids)
+    {
+        foreach (var asteroid in asteroids)
+        {
+            asteroid.Draw(window);
+        }
     }
 
     private void DrawSpaceShipBullets(RenderWindow window, List<SpaceShipBullet> playerBullets)
