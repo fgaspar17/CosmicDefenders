@@ -15,6 +15,7 @@ internal class EnemyWaveManager
     public List<List<IEnemy>> Enemies { get; private set; }
     private bool rightDirection = true;
     private Stopwatch? EnemyShotTimer { get; set; }
+    public float MaxY { get; set; }
     private int _enemyShootingCooldown;
     private const int _enemyShootingCooldownMax = 3_000;
     private const int _enemyShootingCooldownMin = 2_000;
@@ -29,6 +30,7 @@ internal class EnemyWaveManager
         _enemyShootingCooldown = GetRandomShootingCooldown();
         AddEnemyRow<EnemyGreen>(Enemies, 11, (int)windowWidth, y: 150);
         AddEnemyRow<EnemyRed>(Enemies, 11, (int)windowWidth, y: 200);
+        MaxY = 200 + 32;
     }
 
     internal void Draw(RenderWindow window)
@@ -145,6 +147,10 @@ internal class EnemyWaveManager
                 foreach (var enemy in enemyRow)
                 {
                     enemy.PositionEnemy(enemy.PositionX, enemy.PositionY + 10);
+                    if (enemy.PositionY + enemy.Height >= MaxY)
+                    { 
+                        MaxY = enemy.PositionY + enemy.Height;
+                    }
                 }
             }
         }

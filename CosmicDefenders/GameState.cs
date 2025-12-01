@@ -19,6 +19,8 @@ internal class GameState : IGameState
     int _life = 3;
     Font _font;
     EnemyWaveManager _waveManager;
+    int _asteroidY = 380;
+    float _enemyY;
 
     public GameState(int height, int width)
     {
@@ -34,7 +36,7 @@ internal class GameState : IGameState
 
         for (int i = 0; i < 3; i++)
         {
-            _asteroids.Add(new Asteroid(asteroidStartX, 380));
+            _asteroids.Add(new Asteroid(asteroidStartX, _asteroidY));
             asteroidStartX += asteroidWidth + asteroidMargin;
         }
 
@@ -42,6 +44,7 @@ internal class GameState : IGameState
         _enemyBullets = new List<EnemyYellowBullet>();
         _waveManager = new EnemyWaveManager();
         _waveManager.CreateEnemies(height, width);
+        _enemyY = _waveManager.MaxY;
     }
 
     public void Clear(RenderWindow window)
@@ -132,6 +135,7 @@ internal class GameState : IGameState
     {
         waveManager.Update((int)width, out List<EnemyYellowBullet> enemyBullets);
         _enemyBullets.AddRange(enemyBullets);
+        _enemyY = waveManager.MaxY;
     }
 
     private void UpdateExplosions(List<SpaceShipBulletExplosion> explosions)
@@ -288,7 +292,7 @@ internal class GameState : IGameState
 
     public int GetState()
     {
-        if (_life <= 0)
+        if (_life <= 0 || _enemyY > _asteroidY)
             return States.GAME_OVER_SCREEN;
 
         return States.GAME_SCREEN;
