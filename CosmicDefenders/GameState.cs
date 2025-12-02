@@ -2,6 +2,7 @@
 using CosmicDefenders.Entities;
 using CosmicDefenders.Entities.Enemies;
 using CosmicDefenders.Entities.Player;
+using CosmicDefenders.Levels;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -12,7 +13,7 @@ internal class GameState : IGameState
 {
     SpaceShip _spaceShip;
     List<SpaceShipBullet> _playerBullets;
-    List<Asteroid> _asteroids = new List<Asteroid>();
+    List<Asteroid> _asteroids;
     List<SpaceShipBulletExplosion> _explosions;
     List<EnemyYellowBullet> _enemyBullets;
     int _score = 0;
@@ -21,30 +22,18 @@ internal class GameState : IGameState
     EnemyWaveManager _waveManager;
     int _asteroidY = 380;
     float _enemyY;
+    LevelManager _level;
+    int _height, _width;
 
     public GameState(int height, int width)
     {
+        _height = height;
+        _width = width;
         _font = new Font("Assets/SairaStencilOne-Regular.ttf");
         _spaceShip = new SpaceShip();
-        _playerBullets = new List<SpaceShipBullet>();
+        
 
-        int asteroidWidth = 64;
-        int asteroidNumber = 3;
-        int asteroidMargin = 100;
-        int totalAsteroidWidth = asteroidNumber * asteroidWidth + (asteroidMargin * (asteroidNumber - 1));
-        int asteroidStartX = (width - totalAsteroidWidth) / 2;
-
-        for (int i = 0; i < 3; i++)
-        {
-            _asteroids.Add(new Asteroid(asteroidStartX, _asteroidY));
-            asteroidStartX += asteroidWidth + asteroidMargin;
-        }
-
-        _explosions = new List<SpaceShipBulletExplosion>();
-        _enemyBullets = new List<EnemyYellowBullet>();
-        _waveManager = new EnemyWaveManager();
-        _waveManager.CreateEnemies(height, width);
-        _enemyY = _waveManager.MaxY;
+        _level = new LevelManager();
     }
 
     public void Clear(RenderWindow window)
@@ -58,6 +47,8 @@ internal class GameState : IGameState
 
         KeyboardInput(window);
 
+        UpdateLevel(_level);
+
         UpdateAsteroids(_asteroids, _playerBullets, _enemyBullets);
 
         UpdateSpaceShipBullets(_waveManager);
@@ -67,6 +58,22 @@ internal class GameState : IGameState
         UpdateEnemies(_waveManager, window.Size.X);
 
         UpdateEnemyBullets(_enemyBullets, window.Size.Y);
+
+    }
+
+    private void UpdateLevel(LevelManager level)
+    {
+        if (level.Uninitilized || (_waveManager != null && _waveManager.Count == 0))
+        {
+            level.LevelUp();
+            _playerBullets = new List<SpaceShipBullet>();
+            _asteroids = new AsteroidFactory().CreateAsteroids(3, _asteroidY, _width);
+            _explosions = new List<SpaceShipBulletExplosion>();
+            _enemyBullets = new List<EnemyYellowBullet>();
+            _waveManager = new EnemyWaveManager();
+            _waveManager.CreateEnemies(_height, _width, level.CurrentLevel.EnemySpeedBoost);
+            _enemyY = _waveManager.MaxY;
+        }
     }
 
     private void UpdateAsteroids(List<Asteroid> asteroids, List<SpaceShipBullet> playerBullets, List<EnemyYellowBullet> enemyBullets)
