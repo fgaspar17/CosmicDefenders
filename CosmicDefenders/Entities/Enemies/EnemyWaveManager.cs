@@ -21,19 +21,19 @@ internal class EnemyWaveManager
     private const int _enemyShootingCooldownMax = 3_000;
     private const int _enemyShootingCooldownMin = 2_000;
     private float _speedBoost;
-    public void CreateEnemies(float windowHeigh, float windowWidth, float speedBoost)
+    public void CreateEnemies(float windowHeigh, float windowWidth, float speedBoost, int enemiesPerRow)
     {
         Enemies = new List<List<IEnemy>>();
 
         // 5 rows, 11 columns
 
-        AddEnemyRow<EnemyYellow>(Enemies, 11, (int)windowWidth, y: 100);
+        AddEnemyRow<EnemyYellow>(Enemies, enemiesPerRow, (int)windowWidth, y: 100);
         EnemyShotTimer = Stopwatch.StartNew();
         _enemyShootingCooldown = GetRandomShootingCooldown();
-        AddEnemyRow<EnemyGreen>(Enemies, 11, (int)windowWidth, y: 150);
-        AddEnemyRow<EnemyRed>(Enemies, 11, (int)windowWidth, y: 200);
+        AddEnemyRow<EnemyGreen>(Enemies, enemiesPerRow, (int)windowWidth, y: 150);
+        AddEnemyRow<EnemyRed>(Enemies, enemiesPerRow, (int)windowWidth, y: 200);
         MaxY = 200 + 32;
-        Count = 33;
+        Count = enemiesPerRow * 3;
         _speedBoost = speedBoost;
     }
 
