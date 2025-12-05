@@ -18,10 +18,10 @@ internal class EnemyWaveManager
     private Stopwatch? EnemyShotTimer { get; set; }
     public float MaxY { get; set; }
     private int _enemyShootingCooldown;
-    private const int _enemyShootingCooldownMax = 3_000;
-    private const int _enemyShootingCooldownMin = 2_000;
+    private int _enemyShootingCooldownMax;
+    private int _enemyShootingCooldownMin;
     private float _speedBoost;
-    public void CreateEnemies(float windowHeigh, float windowWidth, float speedBoost, int enemiesPerRow)
+    public void CreateEnemies(float windowHeigh, float windowWidth, float speedBoost, int enemiesPerRow, int maxCooldownMs)
     {
         Enemies = new List<List<IEnemy>>();
 
@@ -35,6 +35,9 @@ internal class EnemyWaveManager
         MaxY = 200 + 32;
         Count = enemiesPerRow * 3;
         _speedBoost = speedBoost;
+
+        _enemyShootingCooldownMin = maxCooldownMs - 500;
+        _enemyShootingCooldownMax = maxCooldownMs + 500;
     }
 
     internal void Draw(RenderWindow window)

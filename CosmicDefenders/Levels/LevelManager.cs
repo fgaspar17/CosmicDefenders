@@ -13,7 +13,7 @@ internal class LevelManager
             Level = 1,
             EnemySpeedBoost = 0f,
             EnemyNumber = 30,
-            EnemyShootBoost = 0f,
+            EnemyShootCooldown = 3_000,
             EnemyBoss = false,
         });
 
@@ -22,7 +22,7 @@ internal class LevelManager
             Level= 2,
             EnemySpeedBoost = 2f,
             EnemyNumber = 30,
-            EnemyShootBoost = 0f,
+            EnemyShootCooldown = 3_000,
             EnemyBoss = false,
         });
 
@@ -31,7 +31,7 @@ internal class LevelManager
             Level = 3,
             EnemySpeedBoost = 2f,
             EnemyNumber = 33,
-            EnemyShootBoost = 0f,
+            EnemyShootCooldown = 3_000,
             EnemyBoss = false,
         });
 
@@ -40,7 +40,7 @@ internal class LevelManager
             Level = 4,
             EnemySpeedBoost = 2f,
             EnemyNumber = 33,
-            EnemyShootBoost = 2f,
+            EnemyShootCooldown = 2_000,
             EnemyBoss = false,
         });
 
@@ -49,7 +49,7 @@ internal class LevelManager
             Level = 5,
             EnemySpeedBoost = 5f,
             EnemyNumber = 36,
-            EnemyShootBoost = 2f,
+            EnemyShootCooldown = 2_000,
             EnemyBoss = true,
         });
     }

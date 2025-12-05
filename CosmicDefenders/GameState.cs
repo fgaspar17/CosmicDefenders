@@ -71,7 +71,7 @@ internal class GameState : IGameState
             _explosions = new List<SpaceShipBulletExplosion>();
             _enemyBullets = new List<EnemyYellowBullet>();
             _waveManager = new EnemyWaveManager();
-            _waveManager.CreateEnemies(_height, _width, level.CurrentLevel.EnemySpeedBoost, (int)level.CurrentLevel.EnemyNumber / 3);
+            _waveManager.CreateEnemies(_height, _width, level.CurrentLevel.EnemySpeedBoost, (int)level.CurrentLevel.EnemyNumber / 3, level.CurrentLevel.EnemyShootCooldown);
             _enemyY = _waveManager.MaxY;
         }
     }
