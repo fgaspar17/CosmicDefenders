@@ -16,6 +16,7 @@ internal class GameState : IGameState
     List<Asteroid> _asteroids;
     List<SpaceShipBulletExplosion> _explosions;
     List<EnemyYellowBullet> _enemyBullets;
+    EnemyYellowEyeBoss _boss;
     int _score = 0;
     int _life = 3;
     Font _font;
@@ -24,6 +25,7 @@ internal class GameState : IGameState
     float _enemyY;
     LevelManager _level;
     int _height, _width;
+    bool _win = false;
 
     public GameState(int height, int width)
     {
@@ -31,7 +33,7 @@ internal class GameState : IGameState
         _width = width;
         _font = new Font("Assets/SairaStencilOne-Regular.ttf");
         _spaceShip = new SpaceShip();
-        
+
 
         _level = new LevelManager();
     }
@@ -63,7 +65,7 @@ internal class GameState : IGameState
 
     private void UpdateLevel(LevelManager level)
     {
-        if (level.Uninitilized || (_waveManager != null && _waveManager.Count == 0))
+        if (level.Uninitilized || NoEnemiesRemaining(level))
         {
             level.LevelUp();
             _playerBullets = new List<SpaceShipBullet>();
@@ -73,7 +75,12 @@ internal class GameState : IGameState
             _waveManager = new EnemyWaveManager();
             _waveManager.CreateEnemies(_height, _width, level.CurrentLevel.EnemySpeedBoost, (int)level.CurrentLevel.EnemyNumber / 3, level.CurrentLevel.EnemyShootCooldown);
             _enemyY = _waveManager.MaxY;
+            if (level.CurrentLevel.EnemyBoss)
+                _boss = new EnemyYellowEyeBoss(_width, 100, 50);
         }
+
+        if (level.CurrentLevel is null)
+            _win = true;
     }
 
     private void UpdateAsteroids(List<Asteroid> asteroids, List<SpaceShipBullet> playerBullets, List<EnemyYellowBullet> enemyBullets)
@@ -143,6 +150,13 @@ internal class GameState : IGameState
         waveManager.Update((int)width, out List<EnemyYellowBullet> enemyBullets);
         _enemyBullets.AddRange(enemyBullets);
         _enemyY = waveManager.MaxY;
+
+        if (_boss != null)
+        {
+            _boss.Update(_enemyBullets);
+            if (_boss.Life <= 0)
+                _boss = null;
+        }
     }
 
     private void UpdateExplosions(List<SpaceShipBulletExplosion> explosions)
@@ -181,6 +195,14 @@ internal class GameState : IGameState
                 _explosions.Add(new SpaceShipBulletExplosion(enemyKilled.PositionX + enemyKilled.Width / 2, enemyKilled.PositionY + enemyKilled.Height / 2));
             }
 
+            if (_boss != null && _boss.CollidesWith(bullet, out score))
+            {
+                _score += score;
+                _playerBullets.RemoveAt(i);
+                i--;
+                _explosions.Add(new SpaceShipBulletExplosion(bullet.PositionX, bullet.PositionY));
+            }
+
             bullet.Update();
         }
     }
@@ -193,7 +215,7 @@ internal class GameState : IGameState
 
         DrawExplosions(window, _explosions);
 
-        _waveManager.Draw(window);
+        DrawEnemies(window);
 
         DrawEnemyBullets(window);
 
@@ -204,6 +226,13 @@ internal class GameState : IGameState
         DrawAsteroids(window, _asteroids);
 
         window.Display();
+    }
+
+    private void DrawEnemies(RenderWindow window)
+    {
+        _waveManager.Draw(window);
+        if (_boss != null)
+            _boss.Draw(window);
     }
 
     private void DrawAsteroids(RenderWindow window, List<Asteroid> asteroids)
@@ -302,6 +331,18 @@ internal class GameState : IGameState
         if (_life <= 0 || _enemyY > _asteroidY)
             return States.GAME_OVER_SCREEN;
 
+        if (_win)
+            return States.WIN;
+
         return States.GAME_SCREEN;
+    }
+
+    private bool NoEnemiesRemaining(LevelManager level)
+    {
+        bool noEnemiesWave = _waveManager != null && _waveManager.Count == 0;
+        bool bossExists = level.CurrentLevel.EnemyBoss;
+        bool bossDead = _boss == null;
+
+        return noEnemiesWave && (!bossExists || bossDead);
     }
 }
