@@ -13,24 +13,31 @@ namespace CosmicDefenders.Entities.Enemies;
 internal class EnemyWaveManager
 {
     public List<List<IEnemy>> Enemies { get; private set; }
+    public int Count { get; private set; }
     private bool rightDirection = true;
     private Stopwatch? EnemyShotTimer { get; set; }
     public float MaxY { get; set; }
     private int _enemyShootingCooldown;
-    private const int _enemyShootingCooldownMax = 3_000;
-    private const int _enemyShootingCooldownMin = 2_000;
-    public void CreateEnemies(float windowHeigh, float windowWidth)
+    private int _enemyShootingCooldownMax;
+    private int _enemyShootingCooldownMin;
+    private float _speedBoost;
+    public void CreateEnemies(float windowHeigh, float windowWidth, float speedBoost, int enemiesPerRow, int maxCooldownMs)
     {
         Enemies = new List<List<IEnemy>>();
 
         // 5 rows, 11 columns
 
-        AddEnemyRow<EnemyYellow>(Enemies, 11, (int)windowWidth, y: 100);
+        AddEnemyRow<EnemyYellow>(Enemies, enemiesPerRow, (int)windowWidth, y: 100);
         EnemyShotTimer = Stopwatch.StartNew();
         _enemyShootingCooldown = GetRandomShootingCooldown();
-        AddEnemyRow<EnemyGreen>(Enemies, 11, (int)windowWidth, y: 150);
-        AddEnemyRow<EnemyRed>(Enemies, 11, (int)windowWidth, y: 200);
+        AddEnemyRow<EnemyGreen>(Enemies, enemiesPerRow, (int)windowWidth, y: 150);
+        AddEnemyRow<EnemyRed>(Enemies, enemiesPerRow, (int)windowWidth, y: 200);
         MaxY = 200 + 32;
+        Count = enemiesPerRow * 3;
+        _speedBoost = speedBoost;
+
+        _enemyShootingCooldownMin = maxCooldownMs - 500;
+        _enemyShootingCooldownMax = maxCooldownMs + 500;
     }
 
     internal void Draw(RenderWindow window)
@@ -60,6 +67,7 @@ internal class EnemyWaveManager
                     score += enemy.ScoreValue;
                     enemyKilled = enemy;
                     enemyRow.RemoveAt(i);
+                    Count--;
                     i--;
                     collisionDetected = true;
                 }
@@ -78,6 +86,7 @@ internal class EnemyWaveManager
         int total = columns * enemyWidth + (columns - 1) * 10;
         int startX = (totalWidth - total) / 2;
         enemyInstance.PositionEnemy(startX, y);
+        enemyRow.Add(enemyInstance);
 
         for (int col = 1; col < columns; col++)
         {
@@ -93,51 +102,45 @@ internal class EnemyWaveManager
     {
         enemyYellowBullets = new List<EnemyYellowBullet>();
         bool oldDirection = rightDirection;
-        if (rightDirection)
-        {
-            foreach (var enemyRow in Enemies)
-            {
-                List<IShooter> enemiesShooter = enemyRow.OfType<IShooter>().ToList();
-                if (enemiesShooter.Count > 0)
-                {
-                    if (_enemyShootingCooldown <= EnemyShotTimer!.ElapsedMilliseconds)
-                    {
-                        int randomIndex = RandomSingleton.Instance.Next(0, enemiesShooter.Count);
-                        if (enemiesShooter[randomIndex].TryShoot(out IBullet? bullet))
-                            enemyYellowBullets.Add((bullet as EnemyYellowBullet)!);
-                        EnemyShotTimer.Restart();
-                        _enemyShootingCooldown = GetRandomShootingCooldown();
-                    }
-                }
 
+        foreach (var enemyRow in Enemies)
+        {
+            List<IShooter> enemiesShooter = enemyRow.OfType<IShooter>().ToList();
+            if (enemiesShooter.Count > 0)
+            {
+                if (_enemyShootingCooldown <= EnemyShotTimer!.ElapsedMilliseconds)
+                {
+                    int randomIndex = RandomSingleton.Instance.Next(0, enemiesShooter.Count);
+                    if (enemiesShooter[randomIndex].TryShoot(out IBullet? bullet))
+                        enemyYellowBullets.Add((bullet as EnemyYellowBullet)!);
+                    EnemyShotTimer.Restart();
+                    _enemyShootingCooldown = GetRandomShootingCooldown();
+                }
+            }
+
+            if (rightDirection)
+            {
                 foreach (var enemy in enemyRow)
                 {
-                    enemy.PositionEnemy(enemy.PositionX + 2, enemy.PositionY);
+                    enemy.PositionEnemy(enemy.PositionX + (2 + (_speedBoost * (1.00f/Count))), enemy.PositionY);
                     if (enemy.PositionX + enemy.Width >= maxRight)
                     {
                         rightDirection = false;
                     }
                 }
             }
-        }
-        else
-        {
-            foreach (var enemyRow in Enemies)
+            else
             {
-                if (enemyRow.OfType<IShooter>().Any())
-                {
-
-                }
-
                 foreach (var enemy in enemyRow)
                 {
-                    enemy.PositionEnemy(enemy.PositionX - 2, enemy.PositionY);
+                    enemy.PositionEnemy(enemy.PositionX - (2 + (_speedBoost * (1.00f / Count))), enemy.PositionY);
                     if (enemy.PositionX <= 0)
                     {
                         rightDirection = true;
                     }
                 }
             }
+
         }
 
         if (oldDirection != rightDirection)
