@@ -48,7 +48,7 @@ internal class LevelManager
         {
             Level = 5,
             EnemySpeedBoost = 5f,
-            EnemyNumber = 36,
+            EnemyNumber = 3,
             EnemyShootCooldown = 2_000,
             EnemyBoss = true,
         });

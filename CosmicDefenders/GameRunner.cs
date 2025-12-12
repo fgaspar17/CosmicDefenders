@@ -64,6 +64,10 @@ internal class GameRunner
             {
                 //gameState = new ScoreScreenState((int)_window.Size.X, (int)_window.Size.Y);
             }
+            else if (state == States.WIN_SCREEN && gameState is not WinScreenState)
+            {
+                gameState = new WinScreenState((int)_window.Size.X);
+            }
 
             gameState.Clear(_window);
             gameState.Update(_window);

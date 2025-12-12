@@ -26,7 +26,7 @@ internal class SpaceShipBullet : IBullet
         Sprite = new(texture);
         Sprite.Position = new Vector2f(positionX, positionY);
 
-        SoundBuffer shootBuffer = new SoundBuffer(Path.Combine("Assets", "BulletSpaceShipShoot.mp3"));
+        SoundBuffer shootBuffer = new SoundBuffer(Path.Combine("Assets", "BulletSpaceShipShoot.wav"));
         Sound shootSound = new Sound(shootBuffer);
         shootSound.Play();
     }

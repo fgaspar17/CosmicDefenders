@@ -24,7 +24,7 @@
     <None Update="Assets\BulletShoot.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Assets\BulletSpaceShipShoot.mp3">
+    <None Update="Assets\BulletSpaceShipShoot.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Assets\damaged.frag">

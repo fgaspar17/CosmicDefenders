@@ -28,9 +28,9 @@ internal class EnemyYellowEyeBoss
     private float _maxX;
     private bool rightDirection = true;
 
-    private int _enemyShootingCooldown = 1_000;
-    private int _enemyShootingCooldownMin = 500;
-    private int _enemyShootingCooldownMax = 1_500;
+    private int _enemyShootingCooldown = 1_500;
+    private int _enemyShootingCooldownMin = 1_000;
+    private int _enemyShootingCooldownMax = 2_000;
 
     private Stopwatch EnemyShootTimer { get; set; } = new Stopwatch();
     public int Life { get; private set; } = 10;
@@ -97,6 +97,11 @@ internal class EnemyYellowEyeBoss
         if (Sprite.GetGlobalBounds().Contains(bullet.PositionX, bullet.PositionY))
         {
             Life--;
+            if (Life < 3)
+            {
+                _enemyShootingCooldownMin = 500;
+                _enemyShootingCooldownMax = 1_500;
+            }
             if (Life <= 0)
                 score += enemy.ScoreValue;
             
