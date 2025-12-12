@@ -51,6 +51,9 @@ internal class GameState : IGameState
 
         UpdateLevel(_level);
 
+        if (_win)
+            return;
+
         UpdateAsteroids(_asteroids, _playerBullets, _enemyBullets);
 
         UpdateSpaceShipBullets(_waveManager);
@@ -68,19 +71,21 @@ internal class GameState : IGameState
         if (level.Uninitilized || NoEnemiesRemaining(level))
         {
             level.LevelUp();
-            _playerBullets = new List<SpaceShipBullet>();
-            _asteroids = new AsteroidFactory().CreateAsteroids(3, _asteroidY, _width);
-            _explosions = new List<SpaceShipBulletExplosion>();
-            _enemyBullets = new List<EnemyYellowBullet>();
-            _waveManager = new EnemyWaveManager();
-            _waveManager.CreateEnemies(_height, _width, level.CurrentLevel.EnemySpeedBoost, (int)level.CurrentLevel.EnemyNumber / 3, level.CurrentLevel.EnemyShootCooldown);
-            _enemyY = _waveManager.MaxY;
-            if (level.CurrentLevel.EnemyBoss)
-                _boss = new EnemyYellowEyeBoss(_width, 100, 50);
+            if (level.CurrentLevel is null)
+                _win = true;
+            else
+            {
+                _playerBullets = new List<SpaceShipBullet>();
+                _asteroids = new AsteroidFactory().CreateAsteroids(3, _asteroidY, _width);
+                _explosions = new List<SpaceShipBulletExplosion>();
+                _enemyBullets = new List<EnemyYellowBullet>();
+                _waveManager = new EnemyWaveManager();
+                _waveManager.CreateEnemies(_height, _width, level.CurrentLevel.EnemySpeedBoost, (int)level.CurrentLevel.EnemyNumber / 3, level.CurrentLevel.EnemyShootCooldown);
+                _enemyY = _waveManager.MaxY;
+                if (level.CurrentLevel.EnemyBoss)
+                    _boss = new EnemyYellowEyeBoss(_width, 100, 50);
+            }
         }
-
-        if (level.CurrentLevel is null)
-            _win = true;
     }
 
     private void UpdateAsteroids(List<Asteroid> asteroids, List<SpaceShipBullet> playerBullets, List<EnemyYellowBullet> enemyBullets)
@@ -332,7 +337,7 @@ internal class GameState : IGameState
             return States.GAME_OVER_SCREEN;
 
         if (_win)
-            return States.WIN;
+            return States.WIN_SCREEN;
 
         return States.GAME_SCREEN;
     }
