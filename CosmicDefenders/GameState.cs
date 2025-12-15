@@ -2,6 +2,7 @@
 using CosmicDefenders.Entities;
 using CosmicDefenders.Entities.Enemies;
 using CosmicDefenders.Entities.Player;
+using CosmicDefenders.Helpers;
 using CosmicDefenders.Levels;
 using SFML.Graphics;
 using SFML.System;
@@ -334,10 +335,16 @@ internal class GameState : IGameState
     public int GetState()
     {
         if (_life <= 0 || _enemyY > _asteroidY)
+        {
+            ScoresHelper.WriteScore(_score);
             return States.GAME_OVER_SCREEN;
+        }
 
         if (_win)
+        {
+            ScoresHelper.WriteScore(_score);
             return States.WIN_SCREEN;
+        }
 
         return States.GAME_SCREEN;
     }

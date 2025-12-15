@@ -60,9 +60,9 @@ internal class GameRunner
             {
                 gameState = new GameOverScreenState((int)_window.Size.X);
             }
-            else if (state == States.SCORE_SCREEN)
+            else if (state == States.SCORE_SCREEN && gameState is not ScoreScreenState)
             {
-                //gameState = new ScoreScreenState((int)_window.Size.X, (int)_window.Size.Y);
+                gameState = new ScoreScreenState((int)_window.Size.X);
             }
             else if (state == States.WIN_SCREEN && gameState is not WinScreenState)
             {
