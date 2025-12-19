@@ -287,7 +287,6 @@ internal class GameState : IGameState
     private void DrawSpaceShip(RenderWindow window, SpaceShip spaceShip)
     {
         _spaceShip.Draw(window);
-        _spaceShip.DrawDebug(window);
     }
 
     private void DrawExplosions(RenderWindow window, List<SpaceShipBulletExplosion> explosions)
